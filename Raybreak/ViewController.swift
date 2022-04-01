@@ -24,17 +24,40 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        //Todo esto es para configurar Metal para ser presentado
         metalView.device = MTLCreateSystemDefaultDevice()
         device = metalView.device
         
         metalView.clearColor = metalColors.wenderlichGreen
+        metalView.delegate = self
         
         commandQueue = device.makeCommandQueue()
-        let commandBuffer = commandQueue.makeCommandBuffer()
         
-        let commandEncoder = commandBuffer
+        
     }
 
+}
 
+extension ViewController: MTKViewDelegate {
+    //Esta funcion renderizara cuando el usuario haga mamadas de girar el dispositivo y asi
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        
+    }
+    
+    //Esto dibujara por cada frame
+    func draw(in view: MTKView){
+        guard let drawable = view.currentDrawable,
+              let descriptor = view.currentRenderPassDescriptor else {
+            return}
+        
+        let commandBuffer = commandQueue.makeCommandBuffer()
+        
+        let commandEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: descriptor)
+        
+        commandEncoder?.endEncoding()
+        commandBuffer?.present(drawable)
+        commandBuffer?.commit()
+    }
 }
 
